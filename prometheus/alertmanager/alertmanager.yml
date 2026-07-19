@@ -1,0 +1,40 @@
+global:
+  resolve_timeout: 5m
+  slack_api_url: 'YOUR_SLACK_WEBHOOK_URL'
+
+# --- Templates ---
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+# --- Routing Tree ---
+route:
+  group_by: ['alertname', 'instance']
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 4h
+  receiver: 'slack-devops'
+
+  routes:
+    - match:
+        severity: critical
+      receiver: 'slack-critical'
+      repeat_interval: 1h
+
+# --- Receivers ---
+receivers:
+
+  #  DevOps Alerts
+  - name: 'slack-devops'
+    slack_configs:
+      - channel: '#devops-alerts'
+        title: ' {{ .Status | toUpper }} | {{ .CommonAnnotations.summary }}'
+        text: '{{ .CommonAnnotations.description }}'
+        send_resolved: true
+
+  #  Critical Alerts
+  - name: 'slack-critical'
+    slack_configs:
+      - channel: '#critical-alerts'
+        title: ' CRITICAL: {{ .CommonAnnotations.summary }}'
+        text: '{{ .CommonAnnotations.description }}'
+        send_resolved: true
