@@ -50,3 +50,12 @@ groups:
         annotations:
           summary: "Instance {{ $labels.instance }} is DOWN"
           description: "Prometheus target is not reachable"
+
+      - alert: TestSlackAlert
+        expr: vector(1)
+        for: 10s
+        labels:
+          severity: critical
+        annotations:
+          summary: "Test Alert"
+          description: "This is a test alert to Slack 🚀"    
